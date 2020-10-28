@@ -3,8 +3,8 @@ import numpy as np
 import cv2
 import math
 max_type = 3
-max_value = 20
-trackbar_type = "Mean-Gaussian-Median-Bilateral"
+max_value = 50
+trackbar_type = "Mean\nGaussian\nMedian\nBilateral"
 trackbar_value = "Kernel"
 window_name = 'Noise Removal"'
 input_noise=0
@@ -16,10 +16,11 @@ class runGUI():
     def run(self,a):
         filter_type = cv2.getTrackbarPos(trackbar_type, window_name)
         kernel_value = cv2.getTrackbarPos(trackbar_value, window_name)
+        kernel_value = kernel_value - (1-kernel_value%2) if kernel_value!=0 else 1
         result=denoise_filters(self.noise,str(filter_type),kernel_value)
-        cv2.imshow("c", self.org)
-        cv2.imshow("a", self.noise)
-        cv2.imshow("b", result)
+        cv2.imshow("Input image", self.org)
+        cv2.imshow("Noise image", self.noise)
+        cv2.imshow("Filtered Image", result)
 
 def initilizeArs():
     parser = argparse.ArgumentParser()
@@ -42,14 +43,13 @@ def runFilter(src,src_r,filter_type,kernel_size):
     cv2.imshow("Noise image",src)
     cv2.imshow("Filtered image with "+filter_type+" kernerl_size=="+str(kernel_size),result)
     cv2.imshow("Original image",src_r)
-
 def run():
     opt=initilizeArs().parse_args()
     src = cv2.imread(opt.input_noise)
     src_r = cv2.imread(opt.input_real)
     if(opt.gui):
         gui=runGUI(src_r,src)
-        cv2.namedWindow(window_name)
+        cv2.namedWindow(window_name,cv2.WINDOW_FULLSCREEN)
         cv2.createTrackbar(trackbar_type, window_name , 0, max_type, gui.run)
         cv2.createTrackbar(trackbar_value, window_name , 1, max_value, gui.run)
         gui.run(0)
@@ -59,3 +59,4 @@ def run():
     
 if __name__ == '__main__':
     run()
+
