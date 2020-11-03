@@ -8,9 +8,9 @@ def initilizeArs():
     parser = argparse.ArgumentParser()
     parser.add_argument('--type', type=str, default="canny",
                         help='sobel|scharr|prewitt|roberts|canny|laplacian|')
-    parser.add_argument('--kernel_size', default=3,type=int, help='Sobel anda Laaplacian Kernel Size')
-    parser.add_argument('--low_threshold', default=0,type=int, help='Canny low threshold')
-    parser.add_argument('--max_threshold', default=100,type=int, help='Canny max threshold')
+    parser.add_argument('--kernel_size', default=3,type=int, help='Sobel anda Laplacian, canny Kernel Size')
+    parser.add_argument('--lower', default=300,type=int, help='Canny low threshold')
+    parser.add_argument('--upper', default=500,type=int, help='Canny max threshold')
     parser.add_argument('--input_real', type=str,
                         default="data\\img15.jpg", help='Input image')
     return parser
@@ -62,29 +62,11 @@ def roberts(src):
 
     return[img_Robertsx + img_Robertsy,window_name]
 
-def canny(src,low_threshold,max_threshold):
-    window_name = f"Gradient Operators to edge extraction\nCanny "
+def canny(src,lower,upper,kernelSize):
+    window_name = f"Gradient Operators to edge extraction\nCanny aperturesize={kernelSize}\n lower={lower} | upper={upper} "
     img = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(img,low_threshold,max_threshold)
+    edges = cv2.Canny(img,lower,upper,apertureSize=kernelSize)
     return[edges,window_name]
-
-def cannyThreshbar(src,low_threshold,max_threshold):
-    def runn(val):
-        low_threshold = val
-        detected_edges = cv2.Canny(gray, low_threshold, low_threshold*ratio, kernelSize)
-        mask = detected_edges != 0
-        dst = src * (mask[:,:,None].astype(src.dtype))
-        cv2.imshow(window_name, dst)
-        
-    window_name = ('canny - Gradient Operators to edge extraction')
-    window_name = f"Gradient Operators to edge extraction\ncanny"
-    title_trackbar = 'Min Threshold:'
-    ratio = 3
-    kernelSize=3
-    gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    cv2.namedWindow(window_name)
-    cv2.createTrackbar(title_trackbar, window_name , 0, max_threshold, runn)
-    runn(0)
 
 def Laplacian(src,kernelSize):
     window_name = f"Gradient Operators to edge extraction\nLaplace KernelSize={kernelSize} "
@@ -110,9 +92,7 @@ def run():
         elif opt.type == "roberts": [Kernelxy,window_name]=roberts(src)
         elif opt.type == "canny":  
             try:
-                   [Kernelxy,window_name]=canny(src,opt.low_threshold,opt.max_threshold)
-                   cannyThreshbar(src,opt.low_threshold,opt.max_threshold)
-
+                   [Kernelxy,window_name]=canny(src,opt.lower,opt.upper,opt.kernel_size)
             except:
              print("Canny need args low and mad threshold") 
         elif opt.type == "laplacian":
