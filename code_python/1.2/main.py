@@ -6,138 +6,131 @@ from matplotlib import pyplot as plt
 
 def initilizeArs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--type', type=str, default="prewitt",
+    parser.add_argument('--type', type=str, default="canny",
                         help='sobel|scharr|prewitt|roberts|canny|laplacian|')
+    parser.add_argument('--kernel_size', default=3,type=int, help='Sobel anda Laaplacian Kernel Size')
+    parser.add_argument('--low_threshold', default=0,type=int, help='Canny low threshold')
+    parser.add_argument('--max_threshold', default=100,type=int, help='Canny max threshold')
     parser.add_argument('--input_real', type=str,
                         default="data\\img15.jpg", help='Input image')
     return parser
 
-def sobel(src):
-    window_name = ('Sobel Demo - Gradient Operators to edge extraction')
-    scale = 1
-    delta = 0
-    ddepth = cv2.CV_16S
-    # [convert_to_gray]
+def sobel(src,kernelSize):
+    window_name = f"Gradient Operators to edge extraction\nSobel KernelSize={kernelSize}"
+    ddepth = -1
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    # [sobel]
-    # Gradient-X
-    grad_x = cv2.Sobel(gray, ddepth, 1, 0, ksize=3, scale=scale,delta=delta, borderType=cv2.BORDER_DEFAULT)
-    # Gradient-Y
-    grad_y = cv2.Sobel(gray, ddepth, 0, 1, ksize=3, scale=scale,delta=delta, borderType=cv2.BORDER_DEFAULT)
-    # [convert]
-    # # converting back to uint8
+    grad_x = cv2.Sobel(gray,ddepth,1,0,ksize=kernelSize)
+    grad_y = cv2.Sobel(gray,ddepth,0,1,ksize=kernelSize)
+    # [convert]  converting back to uint8
     abs_grad_x = cv2.convertScaleAbs(grad_x)
     abs_grad_y = cv2.convertScaleAbs(grad_y)
-    # [blend]
-    # Total Gradient (approximate)
+    # [blend] Total Gradient (approximate)
     grad = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
-    # [display]
-    cv2.imshow(window_name, grad)
+    return[grad,window_name]
 
 def scharr(src):
-    window_name = ('Scharr - Gradient Operators to edge extraction')
-    scale = 1
-    delta = 0
-    ddepth = cv2.CV_16S
-    ## [convert_to_gray]
+    window_name = f"Gradient Operators to edge extraction\nScharr"
+    ddepth = -1
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    ## [Scharr]
-    # Gradient-X
     grad_x = cv2.Scharr(gray,ddepth,1,0)
-    # Gradient-Y
     grad_y = cv2.Scharr(gray,ddepth,0,1)
-    ## [convert]
-    # converting back to uint8
+    ## [convert] converting back to uint8
     abs_grad_x = cv2.convertScaleAbs(grad_x)
     abs_grad_y = cv2.convertScaleAbs(grad_y)
-    ## [blend]
-    ## Total Gradient (approximate)
+    ## [blend] Total Gradient (approximate)
     grad = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
-    ## [display]
-    cv2.imshow(window_name, grad)
+    return[grad,window_name]
 
 def prewitt(src):
-    window_name = ('prewitt - Gradient Operators to edge extraction')
-    # [convert_to_gray]
+    window_name = f"Gradiprewittent Operators to edge extraction\nPrewitt"
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     kernelx = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
     kernely = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
-    #cv2.CV_64F
+    #ddepth=-1, the output image will have the same depth as the source.
     img_prewittx = cv2.filter2D(gray,-1, kernelx)
     img_prewitty = cv2.filter2D(gray,-1, kernely)
-
     return[img_prewittx + img_prewitty,window_name]
     
 def roberts(src):
-    window_name = ('roberts - Gradient Operators to edge extraction')
-    # [convert_to_gray]
+    window_name = f"Gradiprewittent Operators to edge extraction\nRoberts"
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-
-    kernelx = np.array([[1,0],[0,-1]])
-    kernely = np.array([[0,1],[-1,0]])
+    kernelx = np.array([[-1,0],[0,1]])
+    kernely = np.array([[0,-1],[1,0]])
+    #ddepth=-1, the output image will have the same depth as the source.
     img_Robertsx = cv2.filter2D(gray, -1, kernelx)
     img_Robertsy = cv2.filter2D(gray, -1, kernely)
-    # [display]
-    cv2.imshow("Roberts X", img_Robertsx)
-    cv2.imshow("Roberts Y", img_Robertsy)
-    cv2.imshow(window_name, img_Robertsx + img_Robertsy)
 
-def canny(src):
+    return[img_Robertsx + img_Robertsy,window_name]
+
+def canny(src,low_threshold,max_threshold):
+    window_name = f"Gradient Operators to edge extraction\nCanny "
+    img = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(img,low_threshold,max_threshold)
+    return[edges,window_name]
+
+def cannyThreshbar(src,low_threshold,max_threshold):
     def runn(val):
-        low_threshold = val 
-        detected_edges = cv2.Canny(gray, low_threshold, low_threshold*ratio, kernel_size)
+        low_threshold = val
+        detected_edges = cv2.Canny(gray, low_threshold, low_threshold*ratio, kernelSize)
         mask = detected_edges != 0
         dst = src * (mask[:,:,None].astype(src.dtype))
         cv2.imshow(window_name, dst)
         
     window_name = ('canny - Gradient Operators to edge extraction')
-    max_lowThreshold = 100
+    window_name = f"Gradient Operators to edge extraction\ncanny"
     title_trackbar = 'Min Threshold:'
     ratio = 3
-    kernel_size = 3
+    kernelSize=3
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     cv2.namedWindow(window_name)
-    cv2.createTrackbar(title_trackbar, window_name , 0, max_lowThreshold, runn)
+    cv2.createTrackbar(title_trackbar, window_name , 0, max_threshold, runn)
     runn(0)
 
-def Laplacian(src):
-    # [variables]
-    # Declare the variables we are going to use
-    window_name = ('Laplace - Gradient Operators to edge extraction')
-    ddepth = cv2.CV_16S
-    kernel_size = 3
-    # [convert_to_gray]
-    # Convert the image to grayscale
+def Laplacian(src,kernelSize):
+    window_name = f"Gradient Operators to edge extraction\nLaplace KernelSize={kernelSize} "
+    ddepth = -1
     src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    # [laplacian]
-    # Apply Laplace function
-    dst = cv2.Laplacian(src_gray, ddepth, ksize=kernel_size)
-    # [convert]
-    # converting back to uint8
+    dst = cv2.Laplacian(src_gray, ddepth, ksize=kernelSize)
+    # [convert]# converting back to uint8
     abs_dst = cv2.convertScaleAbs(dst)
-    # [display]
-    cv2.imshow(window_name, abs_dst)
+    return[abs_dst,window_name]
 
 def run():
     opt = initilizeArs().parse_args()
     src = cv2.imread(opt.input_real)
 
-    if opt.type == "sobel": sobel(src)
-    elif (opt.type == "scharr"): scharr(src)
-    elif opt.type == "prewitt": [Kernelxy,window_name]=prewitt(src)
-    elif opt.type == "roberts": roberts(src)
-    elif opt.type == "canny": canny(src)
-    elif opt.type == "laplacian": Laplacian(src)
+    try:
+        if opt.type == "sobel": 
+            try:
+                   [Kernelxy,window_name]=sobel(src,opt.kernel_size)
+            except:
+             print("Sobel Kernel Size arg int >0")
+        elif (opt.type == "scharr"):[Kernelxy,window_name]=scharr(src)
+        elif opt.type == "prewitt": [Kernelxy,window_name]=prewitt(src)
+        elif opt.type == "roberts": [Kernelxy,window_name]=roberts(src)
+        elif opt.type == "canny":  
+            try:
+                   [Kernelxy,window_name]=canny(src,opt.low_threshold,opt.max_threshold)
+                   cannyThreshbar(src,opt.low_threshold,opt.max_threshold)
 
-
-    # [display]
-    #cv2.imshow(window_name, Kernelxy)
-    plt.suptitle(window_name)
-    plt.subplot(121), plt.imshow(src), plt.title("Original Image")
-    plt.xticks([]), plt.yticks([])
-    plt.subplot(122), plt.imshow(Kernelxy), plt.title(opt.type)
-    plt.xticks([]), plt.yticks([])
-    plt.show()
+            except:
+             print("Canny need args low and mad threshold") 
+        elif opt.type == "laplacian":
+            try:
+                   [Kernelxy,window_name]=Laplacian(src,opt.kernel_size)
+            except:
+             print("LaPlacian Kernel Size arg int")
+    except:
+         print("Args problem, use --help arg")
+    try:
+        plt.suptitle(window_name)
+        plt.subplot(121), plt.imshow(src,'gray'), plt.title("Original Image")
+        plt.xticks([]), plt.yticks([])
+        plt.subplot(122), plt.imshow(Kernelxy,'gray'), plt.title(opt.type)
+        plt.xticks([]), plt.yticks([])
+        plt.show()
+    except:
+         print("Error-img plot")
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
