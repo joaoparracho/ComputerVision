@@ -1,16 +1,16 @@
 import argparse
 import numpy as np
 import cv2
+from matplotlib import pyplot as plt
 
 
 def initilizeArs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--type', type=str, default="canny",
+    parser.add_argument('--type', type=str, default="prewitt",
                         help='sobel|scharr|prewitt|roberts|canny|laplacian|')
     parser.add_argument('--input_real', type=str,
                         default="data\\img15.jpg", help='Input image')
     return parser
-
 
 def sobel(src):
     window_name = ('Sobel Demo - Gradient Operators to edge extraction')
@@ -57,18 +57,16 @@ def scharr(src):
     cv2.imshow(window_name, grad)
 
 def prewitt(src):
-    window_name = ('prewiit - Gradient Operators to edge extraction')
+    window_name = ('prewitt - Gradient Operators to edge extraction')
     # [convert_to_gray]
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    kernelx = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
+    kernelx = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
     kernely = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
-    img_prewittx = cv2.filter2D(gray, -1, kernelx)
-    img_prewitty = cv2.filter2D(gray, -1, kernely)
+    #cv2.CV_64F
+    img_prewittx = cv2.filter2D(gray,-1, kernelx)
+    img_prewitty = cv2.filter2D(gray,-1, kernely)
 
-    # [display]
-    cv2.imshow("Prewitt X", img_prewittx)
-    cv2.imshow("Prewitt Y", img_prewitty)
-    cv2.imshow(window_name, img_prewittx + img_prewitty)
+    return[img_prewittx + img_prewitty,window_name]
     
 def roberts(src):
     window_name = ('roberts - Gradient Operators to edge extraction')
@@ -126,14 +124,22 @@ def run():
 
     if opt.type == "sobel": sobel(src)
     elif (opt.type == "scharr"): scharr(src)
-    elif opt.type == "prewitt": prewitt(src)
+    elif opt.type == "prewitt": [Kernelxy,window_name]=prewitt(src)
     elif opt.type == "roberts": roberts(src)
     elif opt.type == "canny": canny(src)
     elif opt.type == "laplacian": Laplacian(src)
 
-    
 
-    cv2.waitKey(0)~
+    # [display]
+    #cv2.imshow(window_name, Kernelxy)
+    plt.suptitle(window_name)
+    plt.subplot(121), plt.imshow(src), plt.title("Original Image")
+    plt.xticks([]), plt.yticks([])
+    plt.subplot(122), plt.imshow(Kernelxy), plt.title(opt.type)
+    plt.xticks([]), plt.yticks([])
+    plt.show()
+
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
