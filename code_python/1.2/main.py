@@ -7,12 +7,12 @@ from matplotlib import pyplot as plt
 def initilizeArs():
     parser = argparse.ArgumentParser()
     parser.add_argument('--type', type=str, default="scharr",
-                        help='sobel|scharr|prewitt|roberts|canny|laplacian|')
-    parser.add_argument('--kernel_size', default=3,type=int, help='Sobel anda Laplacian, canny Kernel Size')
-    parser.add_argument('--lower', default=100,type=int, help='Canny low threshold')
-    parser.add_argument('--upper', default=200,type=int, help='Canny max threshold')
+                        help='choose one:|sobel|scharr|prewitt|roberts|canny|laplacian|')
+    parser.add_argument('--kernel_size', default=3,type=int, help='Sobel and Laplacian, canny Kernel Size int')
+    parser.add_argument('--lower', default=100,type=int, help='Canny low threshold int')
+    parser.add_argument('--upper', default=200,type=int, help='Canny max threshold int')
     parser.add_argument('--input_real', type=str,
-                        default="data\\img15.jpg", help='Input image')
+                        default="data\\img15.jpg", help='Input image path')
     return parser
 
 def sobel(src,kernelSize):
