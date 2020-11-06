@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 def initilizeArs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--type', type=str, default="sobel",
+    parser.add_argument('--type', type=str, default="canny",
                         help='choose one:|sobel|scharr|prewitt|roberts|canny|laplacian|')
     parser.add_argument('--kernel_size', default=3,type=int, help='Sobel and Laplacian, canny Kernel Size int')
     parser.add_argument('--lower', default=100,type=int, help='Canny low threshold int')
@@ -17,6 +17,7 @@ def initilizeArs():
 
 def sobel(src,kernelSize):
     window_name = f"Gradient Operators to edge extraction\nSobel KernelSize={kernelSize}"
+    src = cv2.GaussianBlur(src, (3, 3), 0)
     ddepth = cv2.CV_64F
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     grad_x = cv2.Sobel(gray,ddepth,1,0,ksize=kernelSize)
@@ -32,6 +33,7 @@ def sobel(src,kernelSize):
 def scharr(src):
     window_name = f"Gradient Operators to edge extraction\nScharr"
     ddepth = cv2.CV_64F
+    src = cv2.GaussianBlur(src, (3, 3), 0)
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     grad_x = cv2.Scharr(gray,ddepth,1,0)
     grad_y = cv2.Scharr(gray,ddepth,0,1)
@@ -43,11 +45,12 @@ def scharr(src):
     return[abs_grad_x,abs_grad_y,grad,window_name]
 
 def prewitt(src):
-    window_name = f"Gradiprewittent Operators to edge extraction\nPrewitt"
+    window_name = f"Gradient Operators to edge extraction\nPrewitt"
+    src = cv2.GaussianBlur(src, (3, 3), 0)
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     ddepth = cv2.CV_64F
-    kernelx = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
-    kernely = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
+    kernelx = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
+    kernely = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
     grad_x = cv2.filter2D(gray,ddepth, kernelx)
     grad_y = cv2.filter2D(gray,ddepth, kernely)
     ## [convert] converting back to uint8
@@ -59,7 +62,8 @@ def prewitt(src):
     return[abs_grad_x,abs_grad_y,grad,window_name]
     
 def roberts(src):
-    window_name = f"Gradiprewittent Operators to edge extraction\nRoberts"
+    window_name = f"Gradient Operators to edge extraction\nRoberts"
+    src = cv2.GaussianBlur(src, (3, 3), 0)
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     ddepth = cv2.CV_64F
     kernelx = np.array([[-1,0],[0,1]])
@@ -76,6 +80,7 @@ def roberts(src):
 
 def canny(src,lower,upper,kernelSize):
     window_name = f"Gradient Operators to edge extraction\nCanny aperturesize={kernelSize}\n lower={lower} | upper={upper} "
+    src = cv2.GaussianBlur(src, (3, 3), 0)
     img = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(img,lower,upper,apertureSize=kernelSize)
     return[edges,window_name]
@@ -83,6 +88,7 @@ def canny(src,lower,upper,kernelSize):
 def Laplacian(src,kernelSize):
     window_name = f"Gradient Operators to edge extraction\nLaplace KernelSize={kernelSize} "
     ddepth = cv2.CV_64F
+    src = cv2.GaussianBlur(src, (3, 3), 0)
     src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     dst = cv2.Laplacian(src_gray, ddepth, ksize=kernelSize)
     # [convert]# converting back to uint8

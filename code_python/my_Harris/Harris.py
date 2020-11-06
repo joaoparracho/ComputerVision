@@ -34,6 +34,9 @@ def my_harris(src):
     # [blend] Total Gradient (approximate)
     grad = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
 
+    # Dilate corner image to enhance corner points
+    grad = cv2.dilate(grad,None)
+
     myHarris_dst = cv2.cornerEigenValsAndVecs(grad, blockSize, apertureSize)
     # my_Harris_dst format (λ1,λ2,x1,y1,x2,y2)
 
@@ -65,12 +68,7 @@ def my_harris(src):
     cv2.createTrackbar('Quality Level:', myHarris_window, myHarris_qualityLevel,max_qualityLevel,myHarris_function)
     myHarris_function(myHarris_qualityLevel)
     cv2.waitKey()
-    # 1.Take the grayscale of the original image
-    # 2. Apply a Gaussian filter to smooth out any noise
-    # 3. Apply Sobel operator to find the x and y gradient values for every pixel in the grayscale image
-    # 4. For each pixel p in the grayscale image, consider a 3×3 window around it and compute the corner strength function. Call this its Harris value.
-    # 5. Find all pixels that exceed a certain threshold and are the local maxima within a certain window (to prevent redundant dupes of features)
-    # 6. For each pixel that meets the criteria in 5, compute a feature descriptor.
+
 
 
 def run():
