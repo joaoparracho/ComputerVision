@@ -6,6 +6,8 @@ from matplotlib import pyplot as plt
 
 def initilizeArs():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--type', type=str, default="sobel",
+                        help='choose one:|sobel|scharr|prewitt|roberts|canny|laplacian|')
     parser.add_argument('--kernel_size', default=3, type=int,
                         help='Sobel and Laplacian, canny Kernel Size int')
     parser.add_argument('--input_real', type=str,
@@ -39,34 +41,43 @@ def my_harris(src):
     # my_Harris_dst format (λ1,λ2,x1,y1,x2,y2)
 
     # calculate Mc
-    lambda_1 = myHarris_dst[:, :, 0]
-    lambda_2 = myHarris_dst[:, :, 1]
-    Mc = lambda_1*lambda_2 - k*pow((lambda_1 + lambda_2), 2)
-   
-    MCmax=max(map(max, Mc))
-    MCmin=min(map(min, Mc))
+    Mc = np.empty(grad.shape, dtype=np.float32)
+    for i in range(grad.shape[0]):
+        for j in range(grad.shape[1]):
+            lambda_1 = myHarris_dst[i, j, 0]
+            lambda_2 = myHarris_dst[i, j, 1]
+            Mc[i, j] = lambda_1*lambda_2 - k*pow((lambda_1 + lambda_2), 2)
 
-    windowName="My_Harris"
-    midPosition= 50
-    maxThreshold = 100
-    import numpy.ma as ma
-    def HarrisCallback(val):
+    myHarris_minVal, myHarris_maxVal, _, _ = cv2.minMaxLoc(Mc)
+    #pts_Harris=np.column_stack(np.where(mask_Harris))
+
+
+
+    myHarris_window="ola"
+    myHarris_qualityLevel = 50
+    max_qualityLevel = 100
+
+    def myHarris_function(val):
         myHarris_copy = np.copy(src)
-        mask=np.where(Mc > MCmin + (MCmax - MCmin)*val/maxThreshold)
-        for i in range(mask[0].shape[0]):
-            cv2.circle(myHarris_copy, (mask[1][i], mask[0][i]), 4, (0,0,255) , cv2.FILLED)
-        
-        cv2.imshow(windowName, myHarris_copy)
+        myHarris_qualityLevel = max(val, 1)
+        for i in range(grad.shape[0]):
+            for j in range(grad.shape[1]):
+                if Mc[i, j] > myHarris_minVal + (myHarris_maxVal - myHarris_minVal)*myHarris_qualityLevel/max_qualityLevel:
+                    cv2.circle(myHarris_copy, (j, i), 4, (0,0,255) , cv2.FILLED)
+        cv2.imshow(myHarris_window, myHarris_copy)
 
-    cv2.namedWindow(windowName)
-    cv2.createTrackbar('Threshold:',windowName,midPosition,maxThreshold,HarrisCallback)
-    HarrisCallback(50)
+    cv2.namedWindow(myHarris_window)
+    cv2.createTrackbar('Quality Level:', myHarris_window, myHarris_qualityLevel,max_qualityLevel,myHarris_function)
+    myHarris_function(myHarris_qualityLevel)
     cv2.waitKey()
+
 
 
 def run():
     opt=initilizeArs().parse_args()
     src=cv2.imread(opt.input_real)
+    opt.type=opt.type.lower()
+
     my_harris(src)
 
 

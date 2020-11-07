@@ -51,11 +51,9 @@ def my_harris(src):
     maxThreshold = 100
     import numpy.ma as ma
     def HarrisCallback(val):
+        ma.make_mask
         myHarris_copy = np.copy(src)
-        mask=np.where(Mc > MCmin + (MCmax - MCmin)*val/maxThreshold)
-        for i in range(mask[0].shape[0]):
-            cv2.circle(myHarris_copy, (mask[1][i], mask[0][i]), 4, (0,0,255) , cv2.FILLED)
-        
+        myHarris_copy[Mc > MCmin + (MCmax - MCmin)*val/maxThreshold]=[0, 0, 255]
         cv2.imshow(windowName, myHarris_copy)
 
     cv2.namedWindow(windowName)
