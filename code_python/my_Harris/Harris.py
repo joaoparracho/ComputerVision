@@ -49,7 +49,6 @@ def my_harris(src):
     windowName="My_Harris"
     midPosition= 50
     maxThreshold = 100
-    import numpy.ma as ma
     def HarrisCallback(val):
         myHarris_copy = np.copy(src)
         mask=np.where(Mc > MCmin + (MCmax - MCmin)*val/maxThreshold)
