@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 def initilizeArs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--type', type=str, default="canny",
+    parser.add_argument('--type', type=str, default="sobel",
                         help='choose one:|sobel|scharr|prewitt|roberts|canny|laplacian|')
     parser.add_argument('--kernel_size', default=3,type=int, help='Sobel and Laplacian, canny Kernel Size int')
     parser.add_argument('--lower', default=100,type=int, help='Canny low threshold int')
